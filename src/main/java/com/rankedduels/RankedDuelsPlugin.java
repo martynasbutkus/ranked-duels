@@ -47,7 +47,7 @@ import java.util.concurrent.TimeUnit;
 public class RankedDuelsPlugin extends Plugin
 {
     /** Bump on every release; the server can refuse older versions. */
-    public static final String VERSION = "1.3.3";
+    public static final String VERSION = "1.3.4";
 
     private static final String MENU_OPTION = "Ranked Duel";
     private static final int CHALLENGE_POLL_SECONDS = 5;
@@ -61,7 +61,6 @@ public class RankedDuelsPlugin extends Plugin
     @Inject private RankedDuelsConfig config;
     @Inject private ConfigManager configManager;
     @Inject private ApiClient api;
-    @Inject private com.rankedduels.api.PptIntegration ppt;
     @Inject private DuelStatusOverlay statusOverlay;
     @Inject private ChallengePromptOverlay promptOverlay;
     @Inject private FightBannerOverlay fightBanner;
@@ -723,16 +722,10 @@ public class RankedDuelsPlugin extends Plugin
         final int taken = damageTaken;
         final String opponent = opponentName;
 
-        // Delay the finish report slightly: if PvP Performance Tracker is
-        // running, give it a moment to finalize its FightPerformance, then
-        // attach its detailed fight data to our report.
-        executor.schedule(() -> {
-            com.google.gson.JsonObject performance = ppt.isAvailable()
-                ? ppt.extractFightData(opponent)
-                : null;
-            api.reportFightFinished(duelId, iWon, world, myGear, oppGear, dealt, taken, performance);
+        executor.execute(() -> {
+            api.reportFightFinished(duelId, iWon, world, myGear, oppGear, dealt, taken);
             executor.schedule(sidePanel::refreshAsync, 3, TimeUnit.SECONDS);
-        }, 4, TimeUnit.SECONDS);
+        });
         addGameMessage(iWon
             ? "Victory! Ranked duel result submitted."
             : "Defeat. Ranked duel result submitted.");

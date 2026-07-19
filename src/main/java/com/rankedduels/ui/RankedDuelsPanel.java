@@ -106,10 +106,9 @@ public class RankedDuelsPanel extends PluginPanel
         cancelButton.addActionListener(e -> {
             cancelAction.run();
             // Give the state machine a moment, then re-check visibility.
-            executor.execute(() -> {
-                try { Thread.sleep(600); } catch (InterruptedException ignored) {}
-                SwingUtilities.invokeLater(this::updateCancelButton);
-            });
+            executor.schedule(
+                () -> SwingUtilities.invokeLater(this::updateCancelButton),
+                600, java.util.concurrent.TimeUnit.MILLISECONDS);
         });
         footer.add(cancelButton, BorderLayout.NORTH);
 

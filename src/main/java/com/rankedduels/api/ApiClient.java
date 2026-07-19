@@ -265,7 +265,7 @@ public class ApiClient
 
     public void reportFightFinished(long duelId, boolean won, int world,
                                     Map<String, Integer> myGear, Map<String, Integer> oppGear,
-                                    int damageDealt, int damageTaken, JsonObject performance)
+                                    int damageDealt, int damageTaken)
     {
         JsonObject body = new JsonObject();
         body.addProperty("duel_id", duelId);
@@ -275,12 +275,6 @@ public class ApiClient
         body.add("opponent_gear", gson.toJsonTree(oppGear));
         body.addProperty("damage_dealt", damageDealt);
         body.addProperty("damage_taken", damageTaken);
-        if (performance != null)
-        {
-            // PvP Performance Tracker fight data, in its native compact
-            // export format (c/o fighters, t timestamp, fight log in c.l).
-            body.add("performance", performance);
-        }
         post("/duel/finished", body, true);
     }
 
